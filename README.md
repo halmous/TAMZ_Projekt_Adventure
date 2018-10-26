@@ -1,5 +1,5 @@
-# TAMZ_Projekt_Adventure
-TAMZ_Projekt
+# Projekt do předmětu TAMZII 2018/2019 VŠB-TUO, autor Jakub Halman
+# Adventure
 
 Adventure je mobilní hra pro jednoho hráče. Cílem hry je dostat se do cíle v co nejmenším čase a přitom získat co nejvíce mincí.
 
