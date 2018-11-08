@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TAMZ_Projekt_Adventure</string>
+    <string name="btn_play">Nová hra</string>
+    <string name="btn_score">Nejvyšší skóre</string>
+    <string name="btn_settings">Nastavení</string>
+</resources>
