@@ -24,15 +24,18 @@ public class MapLoader extends Thread {
     private SharedPreferences sharedPreferences;
     private Integer threadCounter = 0;
     private Semaphore semaphore;
+    private Context context;
     private List<Bitmap> tiles;
+    private List<Bitmap> avatars;
 
-    public MapLoader(String mapName, GameCanvas gameCanvas, EndHandler loadEndHandler, SharedPreferences sharedPreferences) {
+    public MapLoader(String mapName, GameCanvas gameCanvas, EndHandler loadEndHandler, SharedPreferences sharedPreferences, Context context) {
         this.mapName = mapName;
         this.gameCanvas = gameCanvas;
         this.loadEndHandler = loadEndHandler;
         this.sharedPreferences = sharedPreferences;
         this.map = new Map();
         this.semaphore = new Semaphore(0);
+        this.context = context;
     }
 
     @Override
@@ -48,24 +51,31 @@ public class MapLoader extends Thread {
             XMLNode rootNode = xmlParser.GetResult();
 
             if (rootNode.GetName().equals("map")) {
-                this.threadCounter = 2;
+                this.threadCounter = 3;
                 TileParser tilesParser = null;
                 TileParser itemsParser = null;
                 List<RoomParser> roomParsers = new ArrayList<RoomParser>();
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                options.inScaled = false;
+                TileParser avatarParser = new TileParser(BitmapFactory.decodeResource(context.getResources(), R.drawable.avatars, options), 64, 64, onEnd);
+
 
                 for (int i = 0; i < rootNode.ChildCount(); i++) {
                     if (rootNode.GetChild(i).GetName().equals("tilesImage"))
                     {
                         File tilesImage = new File(Environment.getExternalStorageDirectory(), externalDirectory + "/tiles/" + rootNode.GetChild(i).GetAttributeValue("src"));
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                         tilesParser = new TileParser(BitmapFactory.decodeFile(tilesImage.getAbsolutePath(), options), 64, 64, onEnd);
                     }
                     else if (rootNode.GetChild(i).GetName().equals("itemsImage")) {
                         File itemsImage = new File(Environment.getExternalStorageDirectory(), externalDirectory + "/items/" + rootNode.GetChild(i).GetAttributeValue("src"));
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                         itemsParser = new TileParser(BitmapFactory.decodeFile(itemsImage.getAbsolutePath(), options), 64, 64, onEnd);
+                    }
+                    else if(rootNode.GetChild(i).GetName().equals("spawn"))
+                    {
+                        this.map.spawnRoom = Integer.parseInt(rootNode.GetChild(i).GetAttributeValue("room"));
+                        this.map.spawnX = Integer.parseInt(rootNode.GetChild(i).GetAttributeValue("x"));
+                        this.map.spawnY = Integer.parseInt(rootNode.GetChild(i).GetAttributeValue("y"));
                     }
                 }
 
@@ -74,12 +84,16 @@ public class MapLoader extends Thread {
                 if(itemsParser != null)
                     itemsParser.start();
 
+                avatarParser.start();
+
                 this.WaitForThreadsEnd();
 
                 if(tilesParser != null)
                     this.tiles = tilesParser.GetResult();
                 if(itemsParser != null)
                     this.map.items = itemsParser.GetResult();
+
+                this.map.avatars = avatarParser.GetResult();
 
                 for (int i = 0; i < rootNode.ChildCount(); i++)
                 {

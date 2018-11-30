@@ -9,6 +9,10 @@ public class Map
 {
     public List<Bitmap> items;
     public List<Room> rooms;
+    public List<Bitmap> avatars;
+    public int spawnRoom;
+    public int spawnX;
+    public int spawnY;
 
     public Map()
     {

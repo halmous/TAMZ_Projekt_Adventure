@@ -24,7 +24,7 @@ public class CanvasActivity extends Activity {
 
         this.gameCanvas = findViewById(R.id.canvas);
 
-        this.mapLoader = new MapLoader("test.xml", this.gameCanvas, this.endHandler, getSharedPreferences("settings", Context.MODE_PRIVATE));
+        this.mapLoader = new MapLoader("test.xml", this.gameCanvas, this.endHandler, getSharedPreferences("settings", Context.MODE_PRIVATE), getBaseContext());
         this.mapLoader.start();
     }
 

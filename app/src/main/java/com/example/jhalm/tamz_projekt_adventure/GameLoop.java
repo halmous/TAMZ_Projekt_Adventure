@@ -3,6 +3,9 @@ package com.example.jhalm.tamz_projekt_adventure;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,6 +25,12 @@ public class GameLoop extends Thread {
     private Double touchStartY;
     private Double touchActualX;
     private Double touchActualY;
+
+    private double playerX;
+    private double playerY;
+    private int playerRoom;
+
+    private final double movePerMs = 0.2;
 
     public GameLoop(GameCanvas gameCanvas, Map map) {
         this.gameCanvas = gameCanvas;
@@ -75,6 +84,10 @@ public class GameLoop extends Thread {
 
         this.touchActualX = this.touchStartX = this.touchActualY = this.touchStartY = -1.0;
 
+        this.playerX = this.map.spawnX * 64;
+        this.playerY = this.map.spawnY * 64;
+        this.playerRoom = this.map.spawnRoom;
+
         this.gameCanvas.setOnTouchListener(this.touchListener);
     }
 
@@ -84,6 +97,7 @@ public class GameLoop extends Thread {
 
 
         long frameTime = 16;
+        long fps = 60;
         while (active) {
             long startTime = System.currentTimeMillis();
 
@@ -91,6 +105,8 @@ public class GameLoop extends Thread {
             double startY;
             double actualX;
             double actualY;
+
+            double movePerFrame = frameTime * this.movePerMs;
 
             synchronized (this.touchStartX) {
                 startX = this.touchStartX;
@@ -103,18 +119,18 @@ public class GameLoop extends Thread {
 
             Bitmap bitmap = Bitmap.createBitmap(16 * 64, 9 * 64, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
-            canvas.drawBitmap(map.rooms.get(0).GetGroundBitmap(), 0, 0, null);
-            canvas.drawBitmap(this.pauseButton, 0, 0, null);
+            canvas.setDensity(0);
 
-            if (touchStartX > -1) {
+
+
+            if (touchStartX > -1)
+            {
                 double xDifference = actualX - startX;
                 double yDifference = actualY - startY;
                 double distance = Math.sqrt(xDifference * xDifference + yDifference * yDifference);
 
-                canvas.drawBitmap(this.joystickOut, (float) (startX - 96), (float) (startY - 96), null);
-                if ((xDifference * xDifference + yDifference * yDifference) <= (32 * 32)) {
-                    canvas.drawBitmap(this.joystickIn, (float) (actualX - 64), (float) (actualY - 64), null);
-                } else {
+                if ((xDifference * xDifference + yDifference * yDifference) > (32 * 32))
+                {
                     actualX = (startX + (32.0 * (xDifference / distance)));
                     actualY = (startY + (32.0 * (yDifference / distance)));
 
@@ -122,6 +138,87 @@ public class GameLoop extends Thread {
                     canvas.drawBitmap(this.joystickIn, (float) (actualX - 64), (float) (actualY - 64), null);
                 }
             }
+
+            double oldPlayerX = this.playerX;
+            this.playerX += ((actualX - startX) / 32) * movePerFrame;
+            if((this.playerX - oldPlayerX) < 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            {
+                this.playerX = oldPlayerX;
+            }
+            else if((this.playerX - oldPlayerX) > 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0]  + 1 ) > 0)
+            {
+                this.playerX = oldPlayerX;
+            }
+
+            double oldPlayerY = this.playerY;
+            this.playerY += ((actualY - startY) / 32) * movePerFrame;
+            if((this.playerY - oldPlayerY) < 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            {
+                this.playerY = oldPlayerY;
+            }
+            else if((this.playerY - oldPlayerY) > 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] + this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            {
+                this.playerY = oldPlayerY;
+            }
+
+
+
+            float displayGroundX;
+            float displayGroundY;
+            float displayPlayerX;
+            float displayPlayerY;
+
+            if((8 * 64) >= this.playerX)
+            {
+                displayGroundX = 0;
+                displayPlayerX = (float) this.playerX;
+            }
+            else if((map.rooms.get(this.playerRoom).GetGroundBitmap().getWidth() - (8 * 64)) <= this.playerX)
+            {
+                displayGroundX = ((16 * 64) - map.rooms.get(this.playerRoom).GetGroundBitmap().getWidth());
+                displayPlayerX = (float) ((16 * 64) - (map.rooms.get(this.playerRoom).GetGroundBitmap().getWidth() - this.playerX));
+            }
+            else
+            {
+                displayGroundX =(float) (8 * 64 - this.playerX);
+                displayPlayerX = 8 * 64;
+            }
+
+            if((4.5 * 64) >= this.playerY)
+            {
+                displayGroundY = 0;
+                displayPlayerY = (float) this.playerY;
+            }
+            else if((map.rooms.get(this.playerRoom).GetGroundBitmap().getHeight() - (4.5 * 64)) <= this.playerY)
+            {
+                displayGroundY = (float) ((9 * 64) - map.rooms.get(this.playerRoom).GetGroundBitmap().getHeight());
+                displayPlayerY = (float) ((9 * 64) - (map.rooms.get(this.playerRoom).GetGroundBitmap().getHeight() - this.playerY));
+            }
+            else
+            {
+                displayGroundY =(float) (4.5 * 64 - this.playerY);
+                displayPlayerY = (float) (4.5 * 64);
+            }
+
+            canvas.drawBitmap(map.rooms.get(this.playerRoom).GetGroundBitmap(), displayGroundX, displayGroundY, null);
+            canvas.drawBitmap(map.avatars.get(0), displayPlayerX, (float) displayPlayerY, null);
+
+            if (touchStartX > -1) {
+
+                canvas.drawBitmap(this.joystickOut, (float) (startX - 96), (float) (startY - 96), null);
+                canvas.drawBitmap(this.joystickIn, (float) (actualX - 64), (float) (actualY - 64), null);
+            }
+            //Log.d("TAMZ",  Double.toString(displayGroundX) + "  " + Double.toString(displayGroundY) + "  " + Double.toString(displayPlayerX) + "  " + Double.toString(displayPlayerY));
+
+            canvas.drawBitmap(this.pauseButton, 0, 0, null);
+
+            fps = (fps + 1000/ frameTime) / 2;
+
+            Paint paint = new Paint();
+            paint.setColor(Color.WHITE);
+            paint.setStyle(Paint.Style.FILL);
+            paint.setTextSize(10);
+            canvas.drawText("FPS: " + Long.toString(fps), (float) (canvas.getWidth() * 0.9), 10, paint);
 
             this.gameCanvas.SetBitmap(bitmap);
             this.gameCanvas.invalidate();
