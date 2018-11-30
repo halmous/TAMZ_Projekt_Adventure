@@ -4,4 +4,6 @@
     <string name="btn_play">Nová hra</string>
     <string name="btn_score">Nejvyšší skóre</string>
     <string name="btn_settings">Nastavení</string>
+    <string name="sound">Zapnout zvuky</string>
+    <string name="external_directory">Externí složka</string>
 </resources>
