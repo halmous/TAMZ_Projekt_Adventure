@@ -33,10 +33,36 @@ public class RoomParser extends Thread {
                 {
                     ParseGround(this.rootXMLNode.GetChild(i));
                 }
+                else if(this.rootXMLNode.GetChild(i).GetName().equals("npcs"))
+                {
+                    ParseNPCS(this.rootXMLNode.GetChild(i));
+                }
             }
         }
 
         this.endHandler.OnEnd();
+    }
+
+    private void ParseNPCS(XMLNode xmlNode)
+    {
+        for(int i = 0; i < xmlNode.ChildCount(); i++)
+        {
+            if(xmlNode.GetChild(i).GetName().equals("npc"))
+            {
+                NPC npc = new NPC();
+
+                npc.type = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("type"));
+                npc.x = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("x"));
+                npc.y = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("y"));
+
+                if(xmlNode.GetChild(i).GetAttributeValue("y") != null)
+                    npc.direction = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("direction"));
+                else
+                    npc.direction = 0;
+
+                this.room.AddNPC(npc);
+            }
+        }
     }
 
     private void ParseGround(XMLNode xmlNode)

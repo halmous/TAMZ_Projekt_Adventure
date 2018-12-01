@@ -31,6 +31,7 @@ public class GameLoop extends Thread {
     private int playerRoom;
 
     private final double movePerMs = 0.2;
+    private final double npcRatio = 0.9;
 
     public GameLoop(GameCanvas gameCanvas, Map map) {
         this.gameCanvas = gameCanvas;
@@ -88,6 +89,15 @@ public class GameLoop extends Thread {
         this.playerY = this.map.spawnY * 64;
         this.playerRoom = this.map.spawnRoom;
 
+        for(int i = 0; i < this.map.rooms.size(); i++)
+        {
+            for(int j = 0; j < this.map.rooms.get(i).NPCCount(); j++)
+            {
+                this.map.rooms.get(i).GetNPC(j).x *= 64;
+                this.map.rooms.get(i).GetNPC(j).y *= 64;
+            }
+        }
+
         this.gameCanvas.setOnTouchListener(this.touchListener);
     }
 
@@ -141,24 +151,40 @@ public class GameLoop extends Thread {
 
             double oldPlayerX = this.playerX;
             this.playerX += ((actualX - startX) / 32) * movePerFrame;
-            if((this.playerX - oldPlayerX) < 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            if(this.playerX < 0)
             {
-                this.playerX = oldPlayerX;
+                this.playerX = 0;
+            }
+            else if (this.playerX > ((this.map.rooms.get(this.playerRoom).GetSize()[0] - 1) * 64))
+            {
+                this.playerX = (this.map.rooms.get(this.playerRoom).GetSize()[0] - 1) * 64;
+            }
+            else if((this.playerX - oldPlayerX) < 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            {
+                this.playerX = Math.floor(oldPlayerX);
             }
             else if((this.playerX - oldPlayerX) > 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0]  + 1 ) > 0)
             {
-                this.playerX = oldPlayerX;
+                this.playerX = Math.ceil(oldPlayerX);
             }
 
             double oldPlayerY = this.playerY;
             this.playerY += ((actualY - startY) / 32) * movePerFrame;
-            if((this.playerY - oldPlayerY) < 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            if(this.playerY < 0)
             {
-                this.playerY = oldPlayerY;
+                this.playerY = 0;
+            }
+            else if(this.playerY > ((this.map.rooms.get(this.playerRoom).GetSize()[1] - 1) * 64))
+            {
+                this.playerY = (this.map.rooms.get(this.playerRoom).GetSize()[1] - 1) * 64;
+            }
+            else if((this.playerY - oldPlayerY) < 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            {
+                this.playerY = Math.floor(oldPlayerY);
             }
             else if((this.playerY - oldPlayerY) > 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(this.playerX / 64)) + ((int)(this.playerY / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] + this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
             {
-                this.playerY = oldPlayerY;
+                this.playerY = Math.ceil(oldPlayerY);
             }
 
 
@@ -202,6 +228,12 @@ public class GameLoop extends Thread {
 
             canvas.drawBitmap(map.rooms.get(this.playerRoom).GetGroundBitmap(), displayGroundX, displayGroundY, null);
             canvas.drawBitmap(map.avatars.get(0), displayPlayerX, (float) displayPlayerY, null);
+
+            for(int i = 0; i < map.rooms.get(this.playerRoom).NPCCount(); i++)
+            {
+                NPCMove(map.rooms.get(this.playerRoom).GetNPC(i), movePerFrame);
+                canvas.drawBitmap(map.avatars.get(map.rooms.get(this.playerRoom).GetNPC(i).type), (float) (map.rooms.get(this.playerRoom).GetNPC(i).x + displayGroundX), (float)(map.rooms.get(this.playerRoom).GetNPC(i).y + displayGroundY), null);
+            }
 
             if (touchStartX > -1) {
 
@@ -286,4 +318,73 @@ public class GameLoop extends Thread {
             return true;
         }
     };
+
+    public void End()
+    {
+        this.active = false;
+    }
+
+    private void NPCMove(NPC npc, double movePerFrame)
+    {
+        if(npc.type == 1)
+        {
+            double oldX = npc.x;
+            double oldY = npc.y;
+
+
+            //Log.d("TAMZ", "cos " + Double.toString(Math.cos(Math.toRadians(npc.direction))) + " sin " + Double.toString(Math.sin(Math.toRadians(npc.direction))));
+
+            double differenceX = npc.x - this.playerX;
+            double differenceY = npc.y - this.playerY;
+            double distance = Math.sqrt(differenceX * differenceX + differenceY * differenceY);
+
+            if(differenceY >= 0)
+            {
+                npc.direction = 180 - (int) Math.toDegrees(Math.acos(differenceX / distance));
+            }
+            else if(differenceY < 0)
+            {
+                npc.direction = 180 + (int) Math.toDegrees(Math.acos(differenceX / distance));
+            }
+
+            npc.x += movePerFrame * Math.cos(Math.toRadians(npc.direction)) * npcRatio;
+            npc.y += movePerFrame * ( - Math.sin(Math.toRadians(npc.direction))) * npcRatio;
+
+            if(npc.x < 0)
+            {
+                npc.x = 0;
+            }
+            else if (npc.x > ((this.map.rooms.get(this.playerRoom).GetSize()[0] - 1) * 64))
+            {
+                npc.x = (this.map.rooms.get(this.playerRoom).GetSize()[0] - 1) * 64;
+            }
+            else if((npc.x - oldX) < 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            {
+                npc.x = Math.floor(oldX);
+            }
+            else if((npc.x - oldX) > 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(playerRoom).GetSize()[0]  + 1 ) > 0)
+            {
+                npc.x = Math.ceil(oldX);
+            }
+
+            if(npc.y < 0)
+            {
+                npc.y = 0;
+            }
+            else if (npc.y > ((this.map.rooms.get(this.playerRoom).GetSize()[1] - 1) * 64))
+            {
+                npc.y = (this.map.rooms.get(this.playerRoom).GetSize()[1] - 1) * 64;
+            }
+            else if((npc.y - oldY) < 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            {
+                npc.y = Math.floor(oldY);
+            }
+            else if((npc.y - oldY) > 0 && this.map.rooms.get(playerRoom).GetCollision(((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(playerRoom).GetSize()[0]  + this.map.rooms.get(playerRoom).GetSize()[0] ) > 0)
+            {
+                npc.y = Math.ceil(oldY);
+            }
+
+            Log.d("TAMZ", "Direction" + Integer.toString(npc.direction));
+        }
+    }
 }

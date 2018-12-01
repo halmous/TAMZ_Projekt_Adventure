@@ -20,11 +20,13 @@ public class Room {
     private Map<Integer, Integer[]> items;
     private int sizeX;
     private int sizeY;
+    private List<NPC> npcs;
 
     public Room()
     {
         this.collision = new ArrayList<Integer>();
         this.items = new ArrayMap<Integer, Integer[]>();
+        this.npcs = new ArrayList<NPC>();
     }
 
     public void AddCollision(int colision)
@@ -76,5 +78,20 @@ public class Room {
     public int[] GetSize()
     {
         return new int[] {this.sizeX, this.sizeY};
+    }
+
+    public NPC GetNPC(int i)
+    {
+        return this.npcs.get(i);
+    }
+
+    public void AddNPC(NPC npc)
+    {
+        this.npcs.add(npc);
+    }
+
+    public int NPCCount()
+    {
+        return this.npcs.size();
     }
 }

@@ -16,6 +16,7 @@ public class CanvasActivity extends Activity {
 
     private GameCanvas gameCanvas;
     private MapLoader mapLoader;
+    private GameLoop gameLoop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +29,17 @@ public class CanvasActivity extends Activity {
         this.mapLoader.start();
     }
 
+    @Override
+    protected void onDestroy()
+    {
+        this.gameLoop.End();
+        super.onDestroy();
+    }
+
     private EndHandler endHandler = new EndHandler() {
         @Override
         public void OnEnd() {
-            GameLoop gameLoop = new GameLoop(gameCanvas, mapLoader.GetResult());
+            gameLoop = new GameLoop(gameCanvas, mapLoader.GetResult());
             gameLoop.start();
             mapLoader = null;
         }
