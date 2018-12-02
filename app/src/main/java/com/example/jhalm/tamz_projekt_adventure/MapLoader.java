@@ -51,7 +51,7 @@ public class MapLoader extends Thread {
             XMLNode rootNode = xmlParser.GetResult();
 
             if (rootNode.GetName().equals("map")) {
-                this.threadCounter = 3;
+                this.threadCounter = 4;
                 TileParser tilesParser = null;
                 TileParser itemsParser = null;
                 List<RoomParser> roomParsers = new ArrayList<RoomParser>();
@@ -59,7 +59,7 @@ public class MapLoader extends Thread {
                 options.inPreferredConfig = Bitmap.Config.ARGB_8888;
                 options.inScaled = false;
                 TileParser avatarParser = new TileParser(BitmapFactory.decodeResource(context.getResources(), R.drawable.avatars, options), 64, 64, onEnd);
-
+                TileParser heartParser = new TileParser(BitmapFactory.decodeResource(context.getResources(), R.drawable.hearts, options), 24, 24, onEnd);
 
                 for (int i = 0; i < rootNode.ChildCount(); i++) {
                     if (rootNode.GetChild(i).GetName().equals("tilesImage"))
@@ -77,6 +77,13 @@ public class MapLoader extends Thread {
                         this.map.spawnX = Integer.parseInt(rootNode.GetChild(i).GetAttributeValue("x"));
                         this.map.spawnY = Integer.parseInt(rootNode.GetChild(i).GetAttributeValue("y"));
                     }
+                    else if(rootNode.GetChild(i).GetName().equals("finish"))
+                    {
+                        this.map.finishRoom = Integer.parseInt(rootNode.GetChild(i).GetAttributeValue("room"));
+                        this.map.finishX = Integer.parseInt(rootNode.GetChild(i).GetAttributeValue("x"));
+                        this.map.finishY = Integer.parseInt(rootNode.GetChild(i).GetAttributeValue("y"));
+                    }
+
                 }
 
                 if(tilesParser != null)
@@ -85,6 +92,7 @@ public class MapLoader extends Thread {
                     itemsParser.start();
 
                 avatarParser.start();
+                heartParser.start();
 
                 this.WaitForThreadsEnd();
 
@@ -94,6 +102,7 @@ public class MapLoader extends Thread {
                     this.map.items = itemsParser.GetResult();
 
                 this.map.avatars = avatarParser.GetResult();
+                this.map.hearts = heartParser.GetResult();
 
                 for (int i = 0; i < rootNode.ChildCount(); i++)
                 {

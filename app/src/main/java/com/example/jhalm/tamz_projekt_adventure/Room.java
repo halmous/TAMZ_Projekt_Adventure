@@ -21,12 +21,14 @@ public class Room {
     private int sizeX;
     private int sizeY;
     private List<NPC> npcs;
+    private Map<Integer, Jump> jumps;
 
     public Room()
     {
         this.collision = new ArrayList<Integer>();
         this.items = new ArrayMap<Integer, Integer[]>();
         this.npcs = new ArrayList<NPC>();
+        this.jumps = new ArrayMap<Integer, Jump>();
     }
 
     public void AddCollision(int colision)
@@ -54,9 +56,9 @@ public class Room {
         return this.ground;
     }
 
-    public void AddItem( int key, int item, int itemDesc)
+    public void AddItem( int key, int item, int itemOptions, int itemValue)
     {
-        this.items.put(key, new Integer[] {item, itemDesc});
+        this.items.put(key, new Integer[] {item, itemOptions, itemValue});
     }
 
     public int ItemSize()
@@ -93,5 +95,26 @@ public class Room {
     public int NPCCount()
     {
         return this.npcs.size();
+    }
+
+    public void AddJump(int position ,Jump jump) { this.jumps.put(position, jump); }
+
+    public Jump GetJump(int position) { return this.jumps.get(position); }
+
+    public void DeleteItem(int i) { this.items.remove(i); }
+
+    public static class Jump
+    {
+        public int room;
+        public int x;
+        public int y;
+
+        public Jump(){ }
+        public Jump(int room, int x, int y)
+        {
+            this.room = room;
+            this.x = x;
+            this.y = y;
+        }
     }
 }

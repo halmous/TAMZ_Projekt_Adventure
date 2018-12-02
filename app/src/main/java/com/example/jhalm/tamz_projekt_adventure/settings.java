@@ -8,9 +8,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 
 public class settings extends Activity {
 
@@ -33,8 +36,30 @@ public class settings extends Activity {
         editText.setText(this.sharedPreferences.getString("externalDirectory", "/projectMaps"));
         editText.addTextChangedListener(externalDirectoryWatcher);
 
+        Spinner spinner = (Spinner) findViewById(R.id.maxfps);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.maxfpsarray, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(onFPSChange);
+        spinner.setSelection(this.sharedPreferences.getInt("frameRates", 0));
 
     }
+
+    private AdapterView.OnItemSelectedListener onFPSChange = new AdapterView.OnItemSelectedListener(){
+
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+        {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt("frameRates", position);
+            editor.apply();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
 
     private View.OnClickListener soundEnable = new View.OnClickListener() {
         @Override

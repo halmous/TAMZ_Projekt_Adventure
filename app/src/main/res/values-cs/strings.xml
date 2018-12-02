@@ -6,4 +6,10 @@
     <string name="btn_settings">Nastavení</string>
     <string name="sound">Zapnout zvuky</string>
     <string name="external_directory">Externí složka</string>
+    <string name="maxfps">Maximální počet snímků</string>
+    <string-array name="maxfpsarray">
+        <item>30 FPS</item>
+        <item>60 FPS</item>
+        <item>120 FPS</item>
+    </string-array>
 </resources>

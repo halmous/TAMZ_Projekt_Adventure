@@ -22,10 +22,13 @@
         </activity>
         <activity
             android:name=".settings"
-            android:screenOrientation="landscape"></activity>
+            android:screenOrientation="landscape" />
         <activity
             android:name=".CanvasActivity"
-            android:screenOrientation="landscape"></activity>
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".MapSelectActivity"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>

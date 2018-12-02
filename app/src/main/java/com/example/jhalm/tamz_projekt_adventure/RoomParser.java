@@ -37,10 +37,44 @@ public class RoomParser extends Thread {
                 {
                     ParseNPCS(this.rootXMLNode.GetChild(i));
                 }
+                else if(this.rootXMLNode.GetChild(i).GetName().equals("jumps"))
+                {
+                    ParseJumps(this.rootXMLNode.GetChild(i));
+                }
             }
         }
 
         this.endHandler.OnEnd();
+    }
+
+    private void ParseJumps(XMLNode xmlNode)
+    {
+        for(int i = 0; i < xmlNode.ChildCount(); i++)
+        {
+            if(xmlNode.GetChild(i).GetName().equals("jump"))
+            {
+                int x = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("x"));
+                int y = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("y"));
+                int sizeX = 1;
+                int sizeY = 1;
+                int jumpTo = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("jumpto"));
+                int jumpToX = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("jumptox"));
+                int jumpToY = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("jumptoy"));
+
+                if(xmlNode.GetChild(i).GetAttributeValue("sizex") != null)
+                    sizeX = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("sizex"));
+                if(xmlNode.GetChild(i).GetAttributeValue("sizey") != null)
+                    sizeY = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("sizey"));
+
+                for(int j = 0; j < sizeY; j++)
+                {
+                    for(int k = 0 ; k < sizeX; k++)
+                    {
+                        this.room.AddJump(x + k + ((y + j) * this.room.GetSize()[0]), new Room.Jump(jumpTo, jumpToX + k, jumpToY + j));
+                    }
+                }
+            }
+        }
     }
 
     private void ParseNPCS(XMLNode xmlNode)
@@ -55,7 +89,7 @@ public class RoomParser extends Thread {
                 npc.x = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("x"));
                 npc.y = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("y"));
 
-                if(xmlNode.GetChild(i).GetAttributeValue("y") != null)
+                if(xmlNode.GetChild(i).GetAttributeValue("direction") != null)
                     npc.direction = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("direction"));
                 else
                     npc.direction = 0;
@@ -76,7 +110,8 @@ public class RoomParser extends Thread {
                 int size = 1;
                 int collision = 0;
                 int item = -1;
-                int itemDesc = 0;
+                int itemOptions = 0;
+                int itemValue = 0;
 
                 if(xmlNode.GetChild(i).GetAttributeValue("size") != null)
                     size = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("size"));
@@ -90,7 +125,10 @@ public class RoomParser extends Thread {
                 if(xmlNode.GetChild(i).GetAttributeValue("item") != null)
                 {
                     item = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("item"));
-                    itemDesc = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("itemOptions"));
+                    itemOptions = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("itemoptions"));
+
+                    if(xmlNode.GetChild(i).GetAttributeValue("itemvalue") != null)
+                        itemValue = Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("itemvalue"));
                 }
 
                 for(int j = 0; j < size; j++)
@@ -98,7 +136,7 @@ public class RoomParser extends Thread {
                     tiles.add(Integer.parseInt(xmlNode.GetChild(i).GetAttributeValue("tile")));
                     this.room.AddCollision(collision);
                     if(item >= 0)
-                        this.room.AddItem(tiles.size() - 1, item, itemDesc);
+                        this.room.AddItem(tiles.size() - 1, item, itemOptions, itemValue);
                 }
 
             }

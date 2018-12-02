@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
     private View.OnClickListener btnNewGame = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent( v.getContext(), CanvasActivity.class);
+            Intent intent = new Intent( v.getContext(), MapSelectActivity.class);
             startActivity(intent);
         }
     };
