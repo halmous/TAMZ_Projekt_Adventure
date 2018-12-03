@@ -13,6 +13,8 @@ public class Player
     public int lives;
     public int maxLives;
     public boolean jump;
+    public boolean dead;
+    public long startTime;
 
     public Player(int lives)
     {

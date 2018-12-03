@@ -48,9 +48,32 @@ public class CanvasActivity extends Activity {
         public void OnEnd() {
 
 
-            gameLoop = new GameLoop(gameCanvas, mapLoader.GetResult(), frameRates[sharedPreferences.getInt("frameRates", 1)]);
+            gameLoop = new GameLoop(gameCanvas, mapLoader.GetResult(), frameRates[sharedPreferences.getInt("frameRates", 1)], gameEndHandler);
             gameLoop.start();
             mapLoader = null;
+        }
+    };
+
+    private EndHandler gameEndHandler = new EndHandler()
+    {
+        @Override
+        public void OnEnd()
+        {
+            if(gameLoop.GetResult() == null)
+            {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+            else
+            {
+                GameLoop.Result result = gameLoop.GetResult();
+                Intent intent = new Intent(getApplicationContext(), NewScore.class);
+                intent.putExtra("time", result.time);
+                intent.putExtra("score", result.score);
+                intent.putExtra("mapName", result.name);
+                startActivity(intent);
+            }
         }
     };
 }

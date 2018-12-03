@@ -29,6 +29,12 @@
         <activity
             android:name=".MapSelectActivity"
             android:screenOrientation="landscape" />
+        <activity
+            android:name=".NewScore"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".HighscoreShow"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>

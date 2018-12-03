@@ -36,6 +36,7 @@ public class MapLoader extends Thread {
         this.map = new Map();
         this.semaphore = new Semaphore(0);
         this.context = context;
+        this.map.name = mapName;
     }
 
     @Override

@@ -12,4 +12,6 @@
         <item>60 FPS</item>
         <item>120 FPS</item>
     </string-array>
+    <string name="player">Tvoje jméno</string>
+    <string name="addscore">Přidat score</string>
 </resources>

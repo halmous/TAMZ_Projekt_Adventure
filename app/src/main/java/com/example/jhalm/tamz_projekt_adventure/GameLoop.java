@@ -1,5 +1,6 @@
 package com.example.jhalm.tamz_projekt_adventure;
 
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -36,16 +37,20 @@ public class GameLoop extends Thread {
 
     private long frameRate;
 
+    private EndHandler onEnd;
+    private Result result;
+
     private final double movePerMs = 0.2;
     private final double npcRatio = 0.8;
 
-    public GameLoop(GameCanvas gameCanvas, Map map, long frameRate) {
+    public GameLoop(GameCanvas gameCanvas, Map map, long frameRate, EndHandler onEnd) {
         this.gameCanvas = gameCanvas;
         this.map = map;
         this.pauseButton = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888);
         this.joystickIn = Bitmap.createBitmap(128, 128, Bitmap.Config.ARGB_8888);
         this.joystickOut = Bitmap.createBitmap(192, 192, Bitmap.Config.ARGB_8888);
         this.frameRate = frameRate;
+        this.onEnd = onEnd;
 
         for (int i = 0; i < 64; i++) {
             for (int j = 0; j < 64; j++) {
@@ -111,7 +116,7 @@ public class GameLoop extends Thread {
     public void run() {
         active = true;
 
-
+        this.player.startTime = System.currentTimeMillis();
         long frameTime = this.frameRate;
         long fps = 100 / this.frameRate;
         while (active) {
@@ -166,7 +171,7 @@ public class GameLoop extends Thread {
             {
                 this.player.x = (this.map.rooms.get(this.player.room).GetSize()[0] - 1) * 64;
             }
-            else if((this.player.x - oldPlayerX) < 0 && (this.map.rooms.get(player.room).GetCollision(arrayPosition) > 0 || ((this.player.y - (int) (this.player.y)) > 0 && this.map.rooms.get(player.room).GetCollision(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0]) > 0)))
+            else if((this.player.x - oldPlayerX) < 0 && (this.map.rooms.get(this.player.room).GetCollision(arrayPosition) > 0 || ((this.player.y - (int) (this.player.y)) > 0 && this.map.rooms.get(player.room).GetCollision(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0]) > 0)))
             {
                 this.player.x = Math.floor(oldPlayerX);
             }
@@ -174,7 +179,7 @@ public class GameLoop extends Thread {
             {
                 this.player.x = Math.ceil(oldPlayerX);
             }
-            else if((this.player.x - oldPlayerX) < 0 && this.map.rooms.get(player.room).GetItem(arrayPosition) != null)
+            else if((this.player.x - oldPlayerX) < 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition) != null)
             {
                 if(this.ItemCollision(arrayPosition))
                 {
@@ -197,7 +202,10 @@ public class GameLoop extends Thread {
             }
             else if((this.player.x - oldPlayerX) > 0 && (this.player.y - (int) (this.player.y)) > 0 && this.map.rooms.get(player.room).GetItem(arrayPosition + 1 + this.map.rooms.get(this.player.room).GetSize()[0]) != null)
             {
-                Integer[] item = this.map.rooms.get(player.room).GetItem(arrayPosition + 1 + this.map.rooms.get(this.player.room).GetSize()[0]);
+                if(this.ItemCollision(arrayPosition + 1 + this.map.rooms.get(this.player.room).GetSize()[0]))
+                {
+                    this.player.x = Math.ceil(oldPlayerX);
+                }
             }
 
             double oldPlayerY = this.player.y;
@@ -223,28 +231,28 @@ public class GameLoop extends Thread {
             {
                 if(this.ItemCollision(arrayPosition))
                 {
-                    this.player.x = Math.floor(oldPlayerY);
+                    this.player.y = Math.floor(oldPlayerY);
                 }
             }
             else if((this.player.y - oldPlayerY) < 0 && (this.player.x - (int)(this.player.x)) > 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition + 1) != null)
             {
                 if(this.ItemCollision(arrayPosition + 1))
                 {
-                    this.player.x = Math.floor(oldPlayerY);
+                    this.player.y = Math.floor(oldPlayerY);
                 }
             }
             else if((this.player.y - oldPlayerY) > 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0] ) != null)
             {
                 if(this.ItemCollision(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0]))
                 {
-                    this.player.x = Math.ceil(oldPlayerY);
+                    this.player.y = Math.ceil(oldPlayerY);
                 }
             }
             else if((this.player.y - oldPlayerY) > 0 && (this.player.x - (int)(this.player.x)) > 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition + 1 + this.map.rooms.get(this.player.room).GetSize()[0]) != null)
             {
                 if(this.ItemCollision(arrayPosition + 1 + this.map.rooms.get(this.player.room).GetSize()[0]))
                 {
-                    this.player.x = Math.ceil(oldPlayerY);
+                    this.player.y = Math.ceil(oldPlayerY);
                 }
             }
 
@@ -349,6 +357,52 @@ public class GameLoop extends Thread {
             paint.setTextSize(10);
             canvas.drawText("FPS: " + Long.toString(fps), (float) (canvas.getWidth() * 0.9), 10, paint);
 
+            if(this.player.dead)
+            {
+                this.player.lives--;
+                this.RespawnPlayer();
+
+                if(this.player.lives < 0)
+                {
+                    paint = new Paint();
+                    paint.setColor(Color.RED);
+                    paint.setStyle(Paint.Style.FILL);
+                    paint.setTextSize(150);
+                    paint.setTextAlign(Paint.Align.CENTER);
+                    canvas.drawText("GameOver", canvas.getWidth() / 2, canvas.getHeight() / 2, paint);
+
+                    paint.setColor(Color.BLACK);
+                    paint.setStyle(Paint.Style.STROKE);
+                    canvas.drawText("GameOver", canvas.getWidth() / 2, canvas.getHeight() / 2, paint);
+
+                    this.active = false;
+                }
+                else
+                {
+                    this.player.dead = false;
+                }
+            }
+
+            if(this.map.finishRoom == this.player.room && this.player.dead == false)
+            {
+                if(this.map.finishX == (int) (this.player.x / 64) && this.map.finishY == (int)(this.player.y ) / 64)
+                {
+                    this.WinGame(canvas);
+                }
+                else if((this.player.x - (int)(this.player.x)) > 0 && this.map.finishX == (int) (this.player.x + 1) / 64 && this.map.finishY == (int)(this.player.y / 64))
+                {
+                    this.WinGame(canvas);
+                }
+                else if((this.player.y - (int)(this.player.y)) > 0 && this.map.finishX == (int) (this.player.x) / 64 && this.map.finishY == (int)(this.player.y + this.map.rooms.get(this.player.room).GetSize()[0]) / 64)
+                {
+                    this.WinGame(canvas);
+                }
+                else if((this.player.x - (int)(this.player.x)) > 0 && (this.player.y - (int)(this.player.y)) > 0 && this.map.finishX == (int) (this.player.x + 1) / 64 && this.map.finishY == (int)(this.player.y + this.map.rooms.get(this.player.room).GetSize()[0]) / 64)
+                {
+                    this.WinGame(canvas);
+                }
+            }
+
             this.gameCanvas.SetBitmap(bitmap);
             this.gameCanvas.invalidate();
 
@@ -377,26 +431,6 @@ public class GameLoop extends Thread {
                 this.player.jump = false;
             }
 
-            if(this.map.finishRoom == this.player.room)
-            {
-                if(this.map.finishX == (int) (this.player.x) && this.map.finishY == (int)(this.player.y))
-                {
-
-                }
-                else if((this.player.x - (int)(this.player.x)) > 0 && this.map.finishX == (int) (this.player.x + 1) && this.map.finishY == (int)(this.player.y))
-                {
-
-                }
-                else if((this.player.y - (int)(this.player.y)) > 0 && this.map.finishX == (int) (this.player.x) && this.map.finishY == (int)(this.player.y + this.map.rooms.get(this.player.room).GetSize()[0]))
-                {
-
-                }
-                else if((this.player.x - (int)(this.player.x)) > 0 && (this.player.y - (int)(this.player.y)) > 0 && this.map.finishX == (int) (this.player.x + 1) && this.map.finishY == (int)(this.player.y + this.map.rooms.get(this.player.room).GetSize()[0]))
-                {
-
-                }
-            }
-
             /*if((this.player.x - oldPlayerX) < 0 && (this.map.rooms.get(this.player.room).GetJump(arrayPosition) != null))
             {
                 if(this.player.jump == false)
@@ -421,7 +455,6 @@ public class GameLoop extends Thread {
             {
                 this.player.jump = false;
             }*/
-
             frameTime = System.currentTimeMillis() - startTime;
 
             if(frameTime < this.frameRate && frameTime > 0)
@@ -436,6 +469,22 @@ public class GameLoop extends Thread {
 
             //Log.d("TAMZ", "FPS: " + Long.toString(1000 / frameTime));
         }
+
+        if(this.player.dead == false)
+        {
+            this.result = new Result();
+            this.result.time = System.currentTimeMillis() - this.player.startTime;
+            this.result.score = this.player.score;
+            this.result.name = this.map.name;
+        }
+
+        try {
+            sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        this.onEnd.OnEnd();
     }
 
     View.OnTouchListener touchListener = new View.OnTouchListener() {
@@ -507,8 +556,7 @@ public class GameLoop extends Thread {
 
             if(distance < 64)
             {
-                this.player.lives--;
-                this.RespawnPlayer();
+                this.player.dead = true;
             }
             else if(distance <= 320)
             {
@@ -520,6 +568,7 @@ public class GameLoop extends Thread {
             }
 
             npc.x += movePerFrame * Math.cos(Math.toRadians(npc.direction)) * npcRatio;
+            int arrayPosition = ((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(this.player.room).GetSize()[0];
 
             if(npc.x < 0)
             {
@@ -539,7 +588,7 @@ public class GameLoop extends Thread {
                     npc.direction = (int) (360 * Math.random());
                 }
             }
-            else if((npc.x - oldX) < 0 && this.map.rooms.get(this.player.room).GetCollision(((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(this.player.room).GetSize()[0] ) > 0)
+            else if((npc.x - oldX) < 0 && (this.map.rooms.get(this.player.room).GetCollision(arrayPosition) > 0 || ((npc.y - (int) (npc.y)) > 0 && this.map.rooms.get(this.player.room).GetCollision(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0]) > 0)))
             {
                 npc.x = Math.floor(oldX);
 
@@ -548,7 +597,7 @@ public class GameLoop extends Thread {
                     npc.direction = (int) (360 * Math.random());
                 }
             }
-            else if((npc.x - oldX) > 0 && this.map.rooms.get(this.player.room).GetCollision(((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(this.player.room).GetSize()[0]  + 1 ) > 0)
+            else if((npc.x - oldX) > 0 && (this.map.rooms.get(this.player.room).GetCollision(arrayPosition + 1 ) > 0 || ((npc.y - (int) (npc.y)) > 0 && this.map.rooms.get(this.player.room).GetCollision(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0] + 1) > 0)))
             {
                 npc.x = Math.ceil(oldX);
 
@@ -557,8 +606,57 @@ public class GameLoop extends Thread {
                     npc.direction = (int) (360 * Math.random());
                 }
             }
+            else if((npc.x - oldX) < 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition) != null)
+            {
+                if(this.NPCItemCollision(arrayPosition))
+                {
+                    npc.x = Math.floor(oldX);
+                }
+
+                if(distance > 320)
+                {
+                    npc.direction = (int) (360 * Math.random());
+                }
+            }
+            else if((npc.x - oldX) < 0 && (npc.y - (int) (npc.y)) > 0 && this.map.rooms.get(player.room).GetItem(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0]) != null)
+            {
+                if(this.NPCItemCollision(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0]))
+                {
+                    npc.x = Math.ceil(oldX);
+                }
+
+                if(distance > 320)
+                {
+                    npc.direction = (int) (360 * Math.random());
+                }
+            }
+            else if((npc.x - oldX) > 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition + 1 ) != null)
+            {
+                if(this.NPCItemCollision(arrayPosition + 1))
+                {
+                    npc.x = Math.ceil(oldX);
+                }
+
+                if(distance > 320)
+                {
+                    npc.direction = (int) (360 * Math.random());
+                }
+            }
+            else if((npc.x - oldX) > 0 && (npc.y - (int) (npc.y)) > 0 && this.map.rooms.get(player.room).GetItem(arrayPosition + 1 + this.map.rooms.get(this.player.room).GetSize()[0]) != null)
+            {
+                if(this.NPCItemCollision(arrayPosition + 1 + this.map.rooms.get(this.player.room).GetSize()[0]))
+                {
+                    npc.x = Math.ceil(oldX);
+                }
+
+                if(distance > 320)
+                {
+                    npc.direction = (int) (360 * Math.random());
+                }
+            }
 
             npc.y += movePerFrame * ( - Math.sin(Math.toRadians(npc.direction))) * npcRatio;
+            arrayPosition = ((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(this.player.room).GetSize()[0];
 
             if(npc.y < 0)
             {
@@ -578,7 +676,7 @@ public class GameLoop extends Thread {
                     npc.direction = (int) (360 * Math.random());
                 }
             }
-            else if((npc.y - oldY) < 0 && this.map.rooms.get(this.player.room).GetCollision(((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(this.player.room).GetSize()[0] ) > 0)
+            else if((npc.y - oldY) < 0 && (this.map.rooms.get(this.player.room).GetCollision(arrayPosition) > 0 || ((npc.x - (int) (npc.x)) > 0 && this.map.rooms.get(this.player.room).GetCollision(arrayPosition + 1) > 0)))
             {
                 npc.y = Math.floor(oldY);
 
@@ -587,9 +685,57 @@ public class GameLoop extends Thread {
                     npc.direction = (int) (360 * Math.random());
                 }
             }
-            else if((npc.y - oldY) > 0 && this.map.rooms.get(this.player.room).GetCollision(((int)(npc.x / 64)) + ((int)(npc.y / 64)) * this.map.rooms.get(this.player.room).GetSize()[0]  + this.map.rooms.get(this.player.room).GetSize()[0] ) > 0)
+            else if((npc.y - oldY) > 0 && (this.map.rooms.get(this.player.room).GetCollision(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0] ) > 0 || ((npc.x - (int)(npc.x)) > 0 && this.map.rooms.get(this.player.room).GetCollision(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0] + 1) > 0)))
             {
                 npc.y = Math.ceil(oldY);
+
+                if(distance > 320)
+                {
+                    npc.direction = (int) (360 * Math.random());
+                }
+            }
+            else if((npc.y - oldY) < 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition) != null)
+            {
+                if(this.NPCItemCollision(arrayPosition))
+                {
+                    npc.y = Math.floor(oldY);
+                }
+
+                if(distance > 320)
+                {
+                    npc.direction = (int) (360 * Math.random());
+                }
+            }
+            else if((npc.y - oldY) < 0 && (npc.x - (int)(npc.x)) > 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition + 1) != null)
+            {
+                if(this.NPCItemCollision(arrayPosition + 1))
+                {
+                    npc.y = Math.floor(oldY);
+                }
+
+                if(distance > 320)
+                {
+                    npc.direction = (int) (360 * Math.random());
+                }
+            }
+            else if((npc.y - oldY) > 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0] ) != null)
+            {
+                if(this.NPCItemCollision(arrayPosition + this.map.rooms.get(this.player.room).GetSize()[0]))
+                {
+                    npc.y = Math.ceil(oldY);
+                }
+
+                if(distance > 320)
+                {
+                    npc.direction = (int) (360 * Math.random());
+                }
+            }
+            else if((npc.y - oldY) > 0 && (npc.x - (int)(npc.x)) > 0 && this.map.rooms.get(this.player.room).GetItem(arrayPosition + 1 + this.map.rooms.get(this.player.room).GetSize()[0]) != null)
+            {
+                if(this.NPCItemCollision(arrayPosition + 1 + this.map.rooms.get(this.player.room).GetSize()[0]))
+                {
+                    npc.y = Math.ceil(oldY);
+                }
 
                 if(distance > 320)
                 {
@@ -688,4 +834,44 @@ public class GameLoop extends Thread {
 
         return false;
     }
+
+    private boolean NPCItemCollision(int itemId)
+    {
+        Integer[] item = this.map.rooms.get(this.player.room).GetItem(itemId);
+        if((item[1] & Room.ITEM_COLLISION) != 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private void WinGame(Canvas canvas)
+    {
+        Paint paint = new Paint();
+        paint.setColor(Color.GREEN);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTextSize(150);
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText("Winner", canvas.getWidth() / 2, canvas.getHeight() / 2, paint);
+
+        paint.setColor(Color.BLACK);
+        paint.setStyle(Paint.Style.STROKE);
+        canvas.drawText("Winner", canvas.getWidth() / 2, canvas.getHeight() / 2, paint);
+
+        this.active = false;
+    }
+
+    public Result GetResult()
+    {
+        return this.result;
+    }
+
+    public static class Result
+    {
+        int score;
+        long time;
+        String name;
+    }
 }
+

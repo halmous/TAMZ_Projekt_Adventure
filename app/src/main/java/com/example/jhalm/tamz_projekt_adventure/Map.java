@@ -17,6 +17,7 @@ public class Map
     public int finishRoom;
     public int finishX;
     public int finishY;
+    public String name;
 
     public Map()
     {
