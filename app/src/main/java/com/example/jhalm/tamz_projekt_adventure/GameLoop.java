@@ -1,19 +1,19 @@
 package com.example.jhalm.tamz_projekt_adventure;
 
-import android.content.SharedPreferences;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
+import android.os.Build;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 
 public class GameLoop extends Thread {
 
@@ -21,9 +21,15 @@ public class GameLoop extends Thread {
     public static final int MAX_60_FPS = 16;
     public static final int MAX_120_FPS = 8;
 
+    public static final int STATUS_RUN = 0;
+    public static final int STATUS_END = 1;
+    public static final int STATUS_STOP = 2;
+    public static final int STATUS_PAUSE = 3;
+
     private GameCanvas gameCanvas;
     private Map map;
     private boolean active;
+    private boolean pause;
     private Bitmap pauseButton;
     private Bitmap joystickIn;
     private Bitmap joystickOut;
@@ -40,10 +46,17 @@ public class GameLoop extends Thread {
     private EndHandler onEnd;
     private Result result;
 
+    private Vibrator vibrator;
+
+    private Integer status;
+
     private final double movePerMs = 0.2;
     private final double npcRatio = 0.8;
 
-    public GameLoop(GameCanvas gameCanvas, Map map, long frameRate, EndHandler onEnd) {
+    private final long[][] vibrationTimings = {{500}, {900, 100, 900, 100, 900, 100}, {100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100}, {50}};
+    private final int[][] vibrationAmplitude = {{VibrationEffect.DEFAULT_AMPLITUDE}, {VibrationEffect.DEFAULT_AMPLITUDE, 0, VibrationEffect.DEFAULT_AMPLITUDE, 0, VibrationEffect.DEFAULT_AMPLITUDE, 0}, {VibrationEffect.DEFAULT_AMPLITUDE, 0, VibrationEffect.DEFAULT_AMPLITUDE, 0, VibrationEffect.DEFAULT_AMPLITUDE, 0, VibrationEffect.DEFAULT_AMPLITUDE, 0, VibrationEffect.DEFAULT_AMPLITUDE, 0, VibrationEffect.DEFAULT_AMPLITUDE, 0}, {VibrationEffect.DEFAULT_AMPLITUDE}};
+
+    public GameLoop(GameCanvas gameCanvas, Map map, long frameRate, EndHandler onEnd, Vibrator vibrator) {
         this.gameCanvas = gameCanvas;
         this.map = map;
         this.pauseButton = Bitmap.createBitmap(64, 64, Bitmap.Config.ARGB_8888);
@@ -109,12 +122,21 @@ public class GameLoop extends Thread {
             }
         }
 
+        this.vibrator = vibrator;
+
+        this.status = STATUS_RUN;
+        this.pause = false;
         this.gameCanvas.setOnTouchListener(this.touchListener);
     }
 
     @Override
     public void run() {
-        active = true;
+        this.active = true;
+
+        synchronized (this.status)
+        {
+            this.status = STATUS_RUN;
+        }
 
         this.player.startTime = System.currentTimeMillis();
         long frameTime = this.frameRate;
@@ -374,11 +396,18 @@ public class GameLoop extends Thread {
                     paint.setColor(Color.BLACK);
                     paint.setStyle(Paint.Style.STROKE);
                     canvas.drawText("GameOver", canvas.getWidth() / 2, canvas.getHeight() / 2, paint);
+                    this.Vibrate(1);
+
+                    synchronized (this.status)
+                    {
+                        this.status = STATUS_END;
+                    }
 
                     this.active = false;
                 }
                 else
                 {
+                    this.Vibrate(0);
                     this.player.dead = false;
                 }
             }
@@ -467,24 +496,75 @@ public class GameLoop extends Thread {
             }
             frameTime = System.currentTimeMillis() - startTime;
 
+            if(this.pause == true)
+            {
+                int tmpStatus;
+                synchronized (this.status)
+                {
+                    tmpStatus = this.status;
+                    this.status = STATUS_PAUSE;
+                }
+
+                try
+                {
+                    synchronized (this)
+                    {
+                        paint = new Paint();
+                        paint.setColor(0xFFFF9900);
+                        paint.setStyle(Paint.Style.FILL);
+                        paint.setTextSize(150);
+                        paint.setTextAlign(Paint.Align.CENTER);
+                        canvas.drawText("Pause", canvas.getWidth() / 2, canvas.getHeight() / 2, paint);
+
+                        paint.setColor(Color.BLACK);
+                        paint.setStyle(Paint.Style.STROKE);
+                        canvas.drawText("Pause", canvas.getWidth() / 2, canvas.getHeight() / 2, paint);
+
+                        this.gameCanvas.SetBitmap(bitmap);
+                        this.gameCanvas.invalidate();
+
+                        this.wait();
+                    }
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+
+                synchronized (this.status)
+                {
+                    this.status = tmpStatus;
+                    this.pause = false;
+                }
+            }
+
             //Log.d("TAMZ", "FPS: " + Long.toString(1000 / frameTime));
         }
 
-        if(this.player.dead == false)
+        synchronized (this.status)
         {
-            this.result = new Result();
-            this.result.time = System.currentTimeMillis() - this.player.startTime;
-            this.result.score = this.player.score;
-            this.result.name = this.map.name;
-        }
+            if (this.status == STATUS_END)
+            {
+                if (this.player.dead == false)
+                {
+                    this.result = new Result();
+                    this.result.time = System.currentTimeMillis() - this.player.startTime;
+                    this.result.score = this.player.score;
+                    this.result.name = this.map.name;
+                }
 
-        try {
-            sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+                try
+                {
+                    sleep(5000);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
 
-        this.onEnd.OnEnd();
+                this.onEnd.OnEnd();
+            }
+        }
     }
 
     View.OnTouchListener touchListener = new View.OnTouchListener() {
@@ -494,39 +574,54 @@ public class GameLoop extends Thread {
             double y = event.getY();
             double xRatio = (16 * 64) / (float) gameCanvas.getMeasuredWidth();
             double yRatio = (9 * 64) / (float) gameCanvas.getMeasuredHeight();
+            double realX = x * xRatio;
+            double realY = y * yRatio;
 
             //Log.d("TAMZ", "X:" + Double.toString( gameCanvas.getMeasuredWidth()) + " Y:" + Double.toString( gameCanvas.getMeasuredHeight()));
 
-            if (!(x < 128 && y < 128)) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN: {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN: {
+                    if(!(realX < 160 && realY < 160))
+                    {
                         synchronized (touchStartX) {
-                            touchStartX = x * xRatio;
-                            touchStartY = y * yRatio;
+                            touchStartX = realX;
+                            touchStartY = realY;
                         }
                         synchronized (touchActualX) {
-                            touchActualX = x * xRatio;
-                            touchActualY = y * yRatio;
+                            touchActualX = realX;
+                            touchActualY = realY;
                         }
-                        break;
                     }
-                    case MotionEvent.ACTION_MOVE: {
-                        synchronized (touchActualX) {
-                            touchActualX = x * xRatio;
-                            touchActualY = y * yRatio;
+                    else if(realX < 64 && realY < 64)
+                    {
+                        double distance = (realX - 31.5) * (realX - 31.5) + (realY - 31.5) * (realY - 31.5);
+                        if(distance < (32 * 32))
+                        {
+                            PauseOrResume();
                         }
-                        break;
                     }
-                    case MotionEvent.ACTION_UP: {
-                        synchronized (touchStartX) {
-                            touchStartX = -1.0;
-                            touchStartY = -1.0;
+                    break;
+                }
+                case MotionEvent.ACTION_MOVE: {
+                    if(touchStartX >= 0)
+                    {
+                        synchronized (touchActualX)
+                        {
+                            touchActualX = realX;
+                            touchActualY = realY;
                         }
-                        synchronized (touchActualX) {
-                            touchActualX = -1.0;
-                            touchActualY = -1.0;
-                            break;
-                        }
+                    }
+                    break;
+                }
+                case MotionEvent.ACTION_UP: {
+                    synchronized (touchStartX) {
+                        touchStartX = -1.0;
+                        touchStartY = -1.0;
+                    }
+                    synchronized (touchActualX) {
+                        touchActualX = -1.0;
+                        touchActualY = -1.0;
+                        break;
                     }
                 }
             }
@@ -537,7 +632,29 @@ public class GameLoop extends Thread {
 
     public void End()
     {
+        synchronized (this.status)
+        {
+            this.status = STATUS_STOP;
+        }
         this.active = false;
+    }
+
+    public void PauseOrResume()
+    {
+        synchronized (this.status)
+        {
+            if (this.status == STATUS_RUN)
+            {
+                this.pause = true;
+            }
+            else if (this.status == STATUS_PAUSE)
+            {
+                synchronized (this)
+                {
+                    this.notify();
+                }
+            }
+        }
     }
 
     private void NPCMove(NPC npc, double movePerFrame)
@@ -770,11 +887,13 @@ public class GameLoop extends Thread {
         {
             this.player.score += item[2];
             this.map.rooms.get(this.player.room).DeleteItem(itemId);
+            this.Vibrate(3);
         }
         else if((item[1] & Room.ITEM_KEY) != 0)
         {
             this.player.keys.add(item[2]);
             this.map.rooms.get(this.player.room).DeleteItem(itemId);
+            this.Vibrate(3);
         }
         else if((item[1] & Room.ITEM_OPENED_BY_KEY) != 0)
         {
@@ -848,6 +967,11 @@ public class GameLoop extends Thread {
 
     private void WinGame(Canvas canvas)
     {
+        synchronized (this.status)
+        {
+            this.status = STATUS_END;
+        }
+
         Paint paint = new Paint();
         paint.setColor(Color.GREEN);
         paint.setStyle(Paint.Style.FILL);
@@ -859,7 +983,25 @@ public class GameLoop extends Thread {
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawText("Winner", canvas.getWidth() / 2, canvas.getHeight() / 2, paint);
 
+        this.Vibrate(2);
+
         this.active = false;
+    }
+
+    private void Vibrate(int vibrationType)
+    {
+        if(this.vibrator != null)
+        {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            {
+                this.vibrator.vibrate(VibrationEffect.createWaveform( this.vibrationTimings[vibrationType], this.vibrationAmplitude[vibrationType], -1));
+            }
+            else
+            {
+                this.vibrator.vibrate(this.vibrationTimings[vibrationType], -1);
+            }
+        }
     }
 
     public Result GetResult()
@@ -872,6 +1014,14 @@ public class GameLoop extends Thread {
         int score;
         long time;
         String name;
+    }
+
+    public int GetStatus()
+    {
+        synchronized (this.status)
+        {
+            return this.status;
+        }
     }
 }
 

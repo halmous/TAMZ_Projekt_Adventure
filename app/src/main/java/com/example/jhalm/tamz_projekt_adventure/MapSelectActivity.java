@@ -55,6 +55,7 @@ public class MapSelectActivity extends Activity {
             Intent intent = new Intent(view.getContext(), CanvasActivity.class);
             intent.putExtra("mapName", arrayAdapter.getItem(position));
             startActivity(intent);
+            finish();
         }
     };
 }

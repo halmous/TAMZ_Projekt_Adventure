@@ -9,7 +9,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Vibrator;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
 
 import java.io.File;
 
@@ -37,6 +40,19 @@ public class CanvasActivity extends Activity {
     }
 
     @Override
+    public void onBackPressed()
+    {
+        if(gameLoop.GetStatus() == GameLoop.STATUS_RUN)
+        {
+            gameLoop.PauseOrResume();
+        }
+        else if(gameLoop.GetStatus() == GameLoop.STATUS_PAUSE)
+        {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onDestroy()
     {
         this.gameLoop.End();
@@ -47,8 +63,12 @@ public class CanvasActivity extends Activity {
         @Override
         public void OnEnd() {
 
+            Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-            gameLoop = new GameLoop(gameCanvas, mapLoader.GetResult(), frameRates[sharedPreferences.getInt("frameRates", 1)], gameEndHandler);
+            if(!vibrator.hasVibrator() || !sharedPreferences.getBoolean( "enableVibration",true))
+                vibrator = null;
+            gameLoop = new GameLoop(gameCanvas, mapLoader.GetResult(), frameRates[sharedPreferences.getInt("frameRates", 1)], gameEndHandler, vibrator);
+
             gameLoop.start();
             mapLoader = null;
         }
@@ -62,7 +82,6 @@ public class CanvasActivity extends Activity {
             if(gameLoop.GetResult() == null)
             {
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
             }
             else
@@ -74,6 +93,21 @@ public class CanvasActivity extends Activity {
                 intent.putExtra("mapName", result.name);
                 startActivity(intent);
             }
+
+            finish();
+        }
+    };
+
+    View.OnKeyListener onBackPressed = new View.OnKeyListener()
+    {
+        @Override
+        public boolean onKey(View v, int keyCode, KeyEvent event)
+        {
+            if(keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN)
+            {
+                gameLoop.PauseOrResume();
+            }
+            return true;
         }
     };
 }

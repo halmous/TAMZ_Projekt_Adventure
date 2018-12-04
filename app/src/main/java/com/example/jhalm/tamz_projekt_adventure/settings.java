@@ -28,7 +28,7 @@ public class settings extends Activity {
 
         CheckBox sound = (CheckBox) findViewById(R.id.check_sound);
         sound.setOnClickListener(soundEnable);
-        sound.setChecked(this.sharedPreferences.getBoolean("enableSound", true));
+        sound.setChecked(this.sharedPreferences.getBoolean("enableVibration", true));
 
         ImageButton back = (ImageButton) findViewById(R.id.btn_settings_back);
 
@@ -65,7 +65,7 @@ public class settings extends Activity {
         @Override
         public void onClick(View v){
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("enableSound", ((CheckBox) v).isChecked());
+            editor.putBoolean("enableVibration", ((CheckBox) v).isChecked());
             editor.apply();
         }
     };
