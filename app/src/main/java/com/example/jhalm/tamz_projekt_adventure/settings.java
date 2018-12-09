@@ -2,6 +2,7 @@ package com.example.jhalm.tamz_projekt_adventure;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
@@ -31,6 +32,7 @@ public class settings extends Activity {
         sound.setChecked(this.sharedPreferences.getBoolean("enableVibration", true));
 
         ImageButton back = (ImageButton) findViewById(R.id.btn_settings_back);
+        back.setOnClickListener(this.onBackClick);
 
         EditText editText = (EditText) findViewById(R.id.external_directory);
         editText.setText(this.sharedPreferences.getString("externalDirectory", "/projectMaps"));
@@ -43,6 +45,14 @@ public class settings extends Activity {
         spinner.setOnItemSelectedListener(onFPSChange);
         spinner.setSelection(this.sharedPreferences.getInt("frameRates", 0));
 
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private AdapterView.OnItemSelectedListener onFPSChange = new AdapterView.OnItemSelectedListener(){
@@ -70,12 +80,6 @@ public class settings extends Activity {
         }
     };
 
-    private View.OnClickListener back = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-
-        }
-    };
 
     private TextWatcher externalDirectoryWatcher = new TextWatcher() {
         @Override
@@ -93,6 +97,14 @@ public class settings extends Activity {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("externalDirectory", s.toString());
             editor.apply();
+        }
+    };
+
+    private View.OnClickListener onBackClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v)
+        {
+            onBackPressed();
         }
     };
 }

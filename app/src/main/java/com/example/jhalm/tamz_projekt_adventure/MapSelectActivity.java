@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import java.io.File;
@@ -38,6 +39,16 @@ public class MapSelectActivity extends Activity {
             listView.setOnItemClickListener(this.onMapClick);
         }
 
+        ImageButton back = (ImageButton) findViewById(R.id.btn_map_select_back);
+        back.setOnClickListener(this.onBackClick);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private FilenameFilter filenameFilter = new FilenameFilter() {
@@ -56,6 +67,14 @@ public class MapSelectActivity extends Activity {
             intent.putExtra("mapName", arrayAdapter.getItem(position));
             startActivity(intent);
             finish();
+        }
+    };
+
+    private View.OnClickListener onBackClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v)
+        {
+            onBackPressed();
         }
     };
 }

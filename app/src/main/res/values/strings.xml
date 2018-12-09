@@ -3,7 +3,7 @@
     <string name="btn_play">New game</string>
     <string name="btn_score">Highscore</string>
     <string name="btn_settings">Settings</string>
-    <string name="sound">Enable sounds</string>
+    <string name="vibration">Enable vibrations</string>
     <string name="external_directory">External directory</string>
     <string name="maxfps">Max FPS</string>
     <string-array name="maxfpsarray">

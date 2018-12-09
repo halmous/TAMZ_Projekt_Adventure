@@ -35,6 +35,14 @@ public class NewScore extends Activity
         button.setOnClickListener(this.newScore);
     }
 
+    @Override
+    public void onBackPressed()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     View.OnClickListener newScore = new View.OnClickListener()
     {
         @Override
@@ -53,6 +61,7 @@ public class NewScore extends Activity
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
+            finish();
         }
     };
 }

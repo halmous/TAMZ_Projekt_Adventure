@@ -48,7 +48,9 @@ public class CanvasActivity extends Activity {
         }
         else if(gameLoop.GetStatus() == GameLoop.STATUS_PAUSE)
         {
-            super.onBackPressed();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 

@@ -46,7 +46,7 @@ public class Highscore extends SQLiteOpenHelper {
     {
         List<DTO> result = new ArrayList<DTO>();
 
-        Cursor cursor = this.getReadableDatabase().rawQuery("SELECT mapname, score, duration, player FROM Highscore ORDER BY mapname, duration, score", null);
+        Cursor cursor = this.getReadableDatabase().rawQuery("SELECT mapname, score, duration, player FROM Highscore ORDER BY mapname, score, duration", null);
 
         for(int i = 0; i < cursor.getCount(); i++)
         {

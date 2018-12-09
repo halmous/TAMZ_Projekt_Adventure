@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
         public void onClick(View v) {
             Intent intent = new Intent( v.getContext(), settings.class);
             startActivity(intent);
+            finish();
         }
     };
 
@@ -48,6 +49,7 @@ public class MainActivity extends Activity {
         public void onClick(View v) {
             Intent intent = new Intent( v.getContext(), MapSelectActivity.class);
             startActivity(intent);
+            finish();
         }
     };
 
@@ -56,6 +58,7 @@ public class MainActivity extends Activity {
         public void onClick(View v) {
             Intent intent = new Intent( v.getContext(), HighscoreShow.class);
             startActivity(intent);
+            finish();
         }
     };
 }
