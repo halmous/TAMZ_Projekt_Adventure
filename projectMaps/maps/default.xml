@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<map>
+  <tilesImage src="default.png"/>
+  <itemsImage src="default.png"/>
+  <spawn room="0" x="8" y="4"/>
+  <finish room="4" x="1" y="4"/>
+  <room x="16" y="9">
+    <array>
+      <value tile="1" size="6" collision="true"/>
+      <value tile="4" size="4"/>
+      <value tile="1" size="7" collision="true"/>
+      <value tile="4" size="14"/>
+      <value tile="1" size="3" collision="true"/>
+      <value tile="4" size="12"/>
+      <value tile="1" size="2" collision="true"/>
+      <value tile="4"/>
+      <value tile="4" item="1" itemoptions="3" itemvalue="1"/>
+      <value tile="4" size="12"/>
+      <value tile="4" item="5" itemoptions="3" itemvalue="2"/>
+      <value tile="4" size="2"/>
+      <value tile="4" item="1" itemoptions="3" itemvalue="1"/>
+      <value tile="4" size="12"/>
+      <value tile="4" item="5" itemoptions="3" itemvalue="2"/>
+      <value tile="4" size="2"/>
+      <value tile="4" item="1" itemoptions="3" itemvalue="1"/>
+      <value tile="4" size="12"/>
+      <value tile="4" item="5" itemoptions="3" itemvalue="2"/>
+      <value tile="4" size="1"/>
+      <value tile="1" size="2" collision="true"/>
+      <value tile="4" size="12"/>
+      <value tile="1" size="3" collision="true"/>
+      <value tile="4" size="14"/>
+      <value tile="1"/>
+      <value tile="1" size="16" collision="true"/>
+    </array>
+    <jumps>
+      <jump x="15" y="3" sizey="3"  jumpto="1" jumptox="0" jumptoy="2"/>
+      <jump x="5" y="0" sizex="4"  jumpto="2" jumptox="14" jumptoy="17"/>
+      <jump x="0" y="3" sizey="3"  jumpto="4" jumptox="15" jumptoy="3"/>
+      <jump x="15" y="7" jumpto="5" jumptox="0" jumptoy="1"/>
+    </jumps>
+  </room>
+  <room x="20" y="7">
+    <array>
+      <value tile="0" size="21" collision="true"/>
+      <value tile="6" size="18"/>
+      <value tile="0" collision="true"/>
+      <value tile="6" size="60"/>
+      <value tile="0" collision="true"/>
+      <value tile="6" size="18"/>
+      <value tile="0" size="21" collision="true"/>
+    </array>
+    <npcs>
+      <npc type="2" x="4" y="3" direction="90"/>
+      <npc type="2" x="10" y="3" direction="270"/>
+      <npc type="2" x="15" y="3" direction="90"/>
+    </npcs>
+    <jumps>
+      <jump x="0" y="2" sizey="3"  jumpto="0" jumptox="15" jumptoy="3"/>
+      <jump x="19" y="2" sizey="3"  jumpto="3" jumptox="0" jumptoy="3"/>
+    </jumps>
+  </room>
+  <room x="32" y="18">
+    <array>
+      <value tile="2" size="33" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="1" collision="true"/>
+      <value tile="9" item="4" itemoptions="4" itemvalue="2"/>
+      <value tile="9" size="20"/>
+      <value tile="9" item="6" itemoptions="8" itemvalue="5"/>
+      <value tile="1" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="1" collision="true"/>
+      <value tile="9" size="22"/>
+      <value tile="1" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="1" collision="true"/>
+      <value tile="9" size="22"/>
+      <value tile="1" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="1" collision="true"/>
+      <value tile="9" size="22"/>
+      <value tile="1" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="1" collision="true"/>
+      <value tile="9" size="22"/>
+      <value tile="1" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="1" collision="true"/>
+      <value tile="9" size="22"/>
+      <value tile="1" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="1" size="11" collision="true"/>
+      <value tile="8" size="2"/>
+      <value tile="1" size="11" collision="true"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="5" size="14" collision="true"/>
+      <value tile="8" size="2"/>
+      <value tile="5" size="14" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="5" size="14" collision="true"/>
+      <value tile="8" size="2"/>
+      <value tile="5" size="14" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="5" size="14" collision="true"/>
+      <value tile="8" size="2"/>
+      <value tile="5" size="14" collision="true"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="14"/>
+      <value tile="8" size="2"/>
+      <value tile="4" size="14"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="15" collision="true"/>
+      <value tile="4" size="4"/>
+      <value tile="2" size="14" collision="true"/>
+    </array>
+    <jumps>
+      <jump x="14" y="17" sizex="4"  jumpto="0" jumptox="5" jumptoy="0"/>
+    </jumps>
+    <npcs>
+      <npc type="1" x="30" y="16"/>
+    </npcs>
+  </room>
+  <room x="16" y="9">
+    <array>
+      <value tile="5" size="12" collision="true"/>
+      <value tile="7" size="3"/>
+      <value tile="7" item="2" itemoptions="8" itemvalue="1"/>
+      <value tile="5" size="12" collision="true"/>
+      <value tile="7" size="4"/>
+      <value tile="5" size="12" collision="true"/>
+      <value tile="7" size="5"/>
+      <value tile="8" size="12"/>
+      <value tile="7" size="4"/>
+      <value tile="8" size="12"/>
+      <value tile="5" size="3" collision="true"/>
+      <value tile="7"/>
+      <value tile="8" size="12"/>
+      <value tile="7" size="3"/>
+      <value tile="5" size="12" collision="true"/>
+      <value tile="7" size="4"/>
+      <value tile="5" size="12" collision="true"/>
+      <value tile="7" size="4"/>
+      <value tile="5" size="12" collision="true"/>
+      <value tile="7" size="3"/>
+      <value tile="7" item="0" itemoptions="4" itemvalue="1"/>
+    </array>
+    <jumps>
+      <jump x="0" y="3" sizey="3"  jumpto="1" jumptox="19" jumptoy="2"/>
+    </jumps>
+  </room>
+  <room x="16" y="9">
+    <array>
+      <value tile="3" size="17" collision="true"/>
+      <value tile="6" size="14"/>
+      <value tile="3" size="2" collision="true"/>
+      <value tile="6" size="5"/>
+      <value tile="10" size="4"/>
+      <value tile="6" size="5"/>
+      <value tile="3" size="2" collision="true"/>
+      <value tile="6" size="5"/>
+      <value tile="10" size="4"/>
+      <value tile="6" size="6"/>
+      <value tile="3" collision="true"/>
+      <value tile="6" item="10" itemoptions="0" itemvalue="0"/>
+      <value tile="6" size="4"/>
+      <value tile="10" size="4"/>
+      <value tile="6" size="6"/>
+      <value tile="3" collision="true"/>
+      <value tile="6" size="5"/>
+      <value tile="10" size="4"/>
+      <value tile="6" size="6"/>
+      <value tile="3" collision="true"/>
+      <value tile="6" size="5"/>
+      <value tile="10" size="4"/>
+      <value tile="6" size="5"/>
+      <value tile="3" size="2" collision="true"/>
+      <value tile="6" size="14"/>
+      <value tile="3" size="17" collision="true"/>
+    </array>
+    <jumps>
+      <jump x="15" y="3" sizey="3"  jumpto="0" jumptox="0" jumptoy="3"/>
+    </jumps>
+  </room>
+  <room x="9" y="9">
+    <array>
+      <value tile="3" size="9" collision="true"/>
+      <value tile="4" size="8"/>
+      <value tile="3" size="2" collision="true"/>
+      <value tile="4" size="7"/>
+      <value tile="3" size="2" collision="true"/>
+      <value tile="4" size="7" item="6" itemoptions="8" itemvalue="5"/> 
+      <value tile="3" size="2" collision="true"/>
+      <value tile="4" size="7" item="6" itemoptions="8" itemvalue="5"/> 
+      <value tile="3" size="2" collision="true"/>
+      <value tile="4" size="7" item="6" itemoptions="8" itemvalue="5"/> 
+      <value tile="3" size="2" collision="true"/>
+      <value tile="4" size="7" item="6" itemoptions="8" itemvalue="5"/> 
+      <value tile="3" size="2" collision="true"/>
+      <value tile="4" size="7" item="6" itemoptions="8" itemvalue="5"/>
+      <value tile="3" size="10" collision="true"/>  
+    </array>
+    <jumps>
+      <jump x="0" y="1" jumpto="0" jumptox="15" jumptoy="7"/>
+    </jumps>
+  </room>
+</map>  

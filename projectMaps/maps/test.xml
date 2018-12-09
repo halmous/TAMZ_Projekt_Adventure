@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<map>
+  <tilesImage src="default.png"/>
+  <itemsImage src="default.png"/>
+  <spawn room="0" x="8" y="4"/>
+  <finish room="2" x="1" y="5"/>
+  <room x="16" y="9">
+    <array>
+      <value tile="1" size="17" collision="true"/>
+      <value tile="4" size="14"/>
+      <value tile="1" size="3" collision="true"/>
+      <value tile="4" size="13"/>
+      <value tile="1" collision="true"/>
+      <value tile="4"/>
+      <value tile="4" item="1" itemoptions="3" itemvalue="1"/>
+      <value tile="4" size="14"/>
+      <value tile="4"/>
+      <value tile="4" item="1" itemoptions="3" itemvalue="1"/>
+      <value tile="4" size="14"/>
+      <value tile="4"/>
+      <value tile="4" item="1" itemoptions="3" itemvalue="1"/>
+      <value tile="4" size="14"/>
+      <value tile="1" size="2" collision="true"/>
+      <value tile="4" size="13"/>
+      <value tile="1" size="2" collision="true"/>
+      <value tile="4" size="14"/>
+      <value tile="1" size="17" collision="true"/>
+    </array>
+    <jumps>
+      <jump x="15" y="3" sizey="3"  jumpto="1" jumptox="0" jumptoy="3"/>
+      <jump x="0" y="3" sizey="3"  jumpto="2" jumptox="31" jumptoy="3"/>
+    </jumps>
+  </room>
+  <room x="16" y="9">
+    <array>
+      <value tile="0" size="17" collision="true"/>
+      <value tile="4" item="0" itemoptions="4" itemvalue="1"/>
+      <value tile="4" size="13"/>
+      <value tile="0" size="2" collision="true"/>
+      <value tile="4" size="14"/>
+      <value tile="0" collision="true"/>
+      <value tile="4" size="15"/>
+      <value tile="0" collision="true"/>
+      <value tile="4" size="15"/>
+      <value tile="0" collision="true"/>
+      <value tile="4" size="15"/>
+      <value tile="0" size="2" collision="true"/>
+      <value tile="4" size="14"/>
+      <value tile="0" size="2" collision="true"/>
+      <value tile="4" size="14"/>
+      <value tile="0" size="17" collision="true"/>
+    </array>
+    <jumps>
+      <jump x="0" y="3" sizey="3"  jumpto="0" jumptox="15" jumptoy="3"/>
+    </jumps>
+  </room>
+  <room x="32" y="18">
+    <array>
+      <value tile="2" size="33" collision="true"/>
+      <value tile="4" item="2" itemoptions="8" itemvalue="1"/>
+      <value tile="4" size="29"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="31"/>
+      <value tile="2" collision="true"/>
+      <value tile="4" size="31"/>
+      <value tile="2" collision="true"/>
+      <value tile="4" size="31"/>
+      <value tile="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="2" collision="true"/>
+      <value tile="4" size="30"/>
+      <value tile="2" size="33" collision="true"/>    
+    </array>
+    <npcs>
+      <npc type="1" x="30" y="16"/>
+    </npcs>
+    <jumps>
+      <jump x="31" y="3" sizey="3"  jumpto="0" jumptox="0" jumptoy="3"/>
+    </jumps>
+  </room>
+</map>
+
